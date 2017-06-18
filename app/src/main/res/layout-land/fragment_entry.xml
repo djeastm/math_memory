@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/top_line"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp">
+
+            <TextView
+                android:id="@+id/entry_title_label"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:text="@string/entry_title_label"
+                style="?android:listSeparatorTextViewStyle"
+                />
+
+            <TextView
+                android:id="@+id/entry_type_label"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/entry_type_label"
+                style="?android:listSeparatorTextViewStyle"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_below="@id/top_line"
+            >
+
+            <ViewSwitcher
+                android:id="@+id/entry_title_switcher"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp">
+                <TextView
+                    android:id="@+id/entry_title_text_view"
+                    android:layout_height="fill_parent"
+                    android:layout_width="wrap_content"
+                    android:textSize="24sp"
+                    tools:text="Title"
+                    />
+
+                <EditText
+                    android:id="@+id/entry_title_edit_text"
+                    android:hint="@string/entry_title_hint"
+                    android:layout_height="fill_parent"
+                    android:layout_width="wrap_content"
+                    />
+            </ViewSwitcher>
+
+            <Spinner
+                android:id="@+id/entry_type_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1.">
+
+        <TextView
+            android:text="@string/entry_audio_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="?android:listSeparatorTextViewStyle"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp">
+            <Spinner
+                android:id="@+id/audio_type_spinner"
+                android:layout_width="250dp"
+                android:layout_height="75dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"/>
+
+            <Button android:id="@+id/entry_record_button"
+                    android:layout_width="fill_parent"
+                    android:layout_height="75dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:textColor="@color/white"
+                    android:background="@color/green"
+                    android:text="@string/entry_start_record_button_label"
+                />
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/fragment_play_manager_recycler_view"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent">
+
+        </android.support.v7.widget.RecyclerView>
+
+
+    </LinearLayout>
+
+</LinearLayout>
