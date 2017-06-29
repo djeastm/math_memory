@@ -1,4 +1,4 @@
-package squeakytree.com.mathmemory;
+package com.davidjeastman.mathmemory;
 
 import org.junit.Test;
 

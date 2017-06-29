@@ -4,28 +4,55 @@
               android:layout_height="match_parent"
               xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical">
-    <ViewSwitcher
-        android:id="@+id/entry_title_switcher"
+
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:paddingTop="8dp">
-        <TextView
-            android:id="@+id/entry_title_text_view"
-            android:layout_height="fill_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:textSize="24sp"
-            tools:text="Title"
-            />
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/entry_photo"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="fitXY"
+                android:cropToPadding="true"
+                android:background="@android:color/darker_gray"/>
+            <ImageButton
+                android:id="@+id/entry_camera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_camera"/>
+        </LinearLayout>
 
-        <EditText
-            android:id="@+id/entry_title_edit_text"
-            android:hint="@string/entry_title_hint"
-            android:layout_height="fill_parent"
-            android:layout_width="wrap_content"
-            />
-    </ViewSwitcher>
+        <ViewSwitcher
+            android:id="@+id/entry_title_switcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:paddingTop="8dp">
+            <TextView
+                android:id="@+id/entry_title_text_view"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:textSize="24sp"
+                tools:text="Title"
+                />
+
+            <EditText
+                android:id="@+id/entry_title_edit_text"
+                android:hint="@string/entry_title_hint"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                />
+        </ViewSwitcher>
+    </LinearLayout>
+
 
     <TextView
         android:layout_width="match_parent"

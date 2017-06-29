@@ -1,4 +1,4 @@
-package squeakytree.com.mathmemory;
+package com.davidjeastman.mathmemory;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

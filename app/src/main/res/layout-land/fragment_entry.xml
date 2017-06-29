@@ -18,6 +18,23 @@
             android:layout_alignParentTop="true"
             android:layout_marginLeft="0dp"
             android:layout_marginRight="0dp">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/entry_photo"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:scaleType="fitXY"
+                    android:cropToPadding="true"
+                    android:background="@android:color/darker_gray"/>
+                <ImageButton
+                    android:id="@+id/entry_camera"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_camera"/>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/entry_title_label"
