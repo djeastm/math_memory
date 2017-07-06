@@ -220,7 +220,7 @@ public class EntryFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         final boolean DO_DIALOG = true;
-        mPhotoView = (ImageView) v.findViewById(R.id.entry_photo);
+        mPhotoView = v.findViewById(R.id.entry_photo);
         mPhotoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

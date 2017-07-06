@@ -35,7 +35,7 @@ public class EntryPhotoDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         //use this to modify dialog characteristics
-        Log.d("CriminalIntent", "CrimePhotoDialogFragment.onCreateDialog()");
+//        Log.d("CriminalIntent", "CrimePhotoDialogFragment.onCreateDialog()");
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.requestWindowFeature(Window.FEATURE_SWIPE_TO_DISMISS);

@@ -18,7 +18,7 @@ import java.util.UUID;
 public class EntryPagerActivity extends AppCompatActivity {
 
     private static final String EXTRA_ENTRY_ID =
-            "com.squeakytree.mathmemory.entry_id";
+            "com.davidjeastman.mathmemory.entry_id";
 
     private ViewPager mViewPager;
     private List<Entry> mEntries;
@@ -34,8 +34,7 @@ public class EntryPagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry_pager);
 
-        UUID entryId = (UUID) getIntent()
-                .getSerializableExtra(EXTRA_ENTRY_ID);
+        UUID entryId = (UUID) getIntent().getSerializableExtra(EXTRA_ENTRY_ID);
 
         mViewPager = (ViewPager) findViewById(R.id.activity_entry_pager_view_pager);
         mEntries = Library.get(this).getEntries();
