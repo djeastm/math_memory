@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -162,9 +163,13 @@ public class Library {
 
     public List<File> getPhotoFiles(Entry entry) {
         List<File> files = new ArrayList<>();
-        File filesDir = mContext.getFilesDir();
-        for (int i = 0; i < entry.getImages().size(); i++)
-            files.add(new File(filesDir, entry.getPhotoFilename(i)));
+        File filesDirExt = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File filesDirInt = mContext.getFilesDir();
+        for (int i = 0; i < entry.getImages().size(); i++) {
+            File f = new File(filesDirExt, entry.getPhotoFilename(i));
+            if (f.exists()) files.add(new File(filesDirExt, entry.getPhotoFilename(i)));
+            else files.add(new File(filesDirInt, entry.getPhotoFilename(i)));
+        }
         return files;
     }
 }

@@ -2,12 +2,14 @@ package com.davidjeastman.mathmemory;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.media.audiofx.EnvironmentalReverb;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -127,6 +129,7 @@ public class EntryFragment extends Fragment {
         }
 
         Button addImageButton = v.findViewById(R.id.fragment_image_add_button);
+
         addImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -192,12 +195,12 @@ public class EntryFragment extends Fragment {
             }
         });
 
-        if (isExternalStorageWritable()) {
-            mRecordButton.setEnabled(true);
-        } else {
-            mRecordButton.setEnabled(false);
-            Log.e(TAG, "Not writable; Can't record");
-        }
+//        if (isExternalStorageWritable()) {
+//            mRecordButton.setEnabled(true);
+//        } else {
+//            mRecordButton.setEnabled(false);
+//            Log.e(TAG, "Not writable; Can't record");
+//        }
         mImageRecyclerView = v.findViewById(R.id.fragment_image_recycler_view);
         mImageRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 
@@ -356,7 +359,7 @@ public class EntryFragment extends Fragment {
     private void startRecording() {
         //mSoundFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         //mSoundFileName += "/" + Library.APP_DIRECTORY + "/" + mEntry.buildSoundFilePathName();
-        mSoundFileName = this.getContext().getExternalCacheDir().getAbsolutePath();
+        mSoundFileName = getContext().getFilesDir().getAbsolutePath();
         mSoundFileName += "/" + mEntry.buildSoundFilePathName();
 
         mRecorder = new MediaRecorder();
@@ -449,21 +452,24 @@ public class EntryFragment extends Fragment {
             });
 
 
-            final boolean DO_DIALOG = true;
+            final boolean DO_DIALOG = false;
             photoView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (photoFile == null || !photoFile.exists()) return;   //no photo
-                    int imageId = mImageRecyclerView.getChildLayoutPosition(v);
+                    int imageId = mImageRecyclerView.getChildLayoutPosition(itemView);
                     FragmentManager fm = getFragmentManager();
                     EntryPhotoDialogFragment dialogFragment = EntryPhotoDialogFragment.newInstance(photoFile.getPath());
                     if (DO_DIALOG) {
                         dialogFragment.show(fm, mEntry.getPhotoFilename(imageId));
                     } else {
                         //show in full screen
-                        android.support.v4.app.FragmentTransaction transaction = fm.beginTransaction();
-                        transaction.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        transaction.add(android.R.id.content, dialogFragment).addToBackStack(null).commit();
+                        Intent intent = ImagePagerActivity.newIntent(getActivity(), mEntry.getId(), imageId);
+                        startActivity(intent);
+//
+//                        android.support.v4.app.FragmentTransaction transaction = fm.beginTransaction();
+//                        transaction.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//                        transaction.add(android.R.id.content, dialogFragment).addToBackStack(null).commit();
                     }
                 }
             });
