@@ -19,7 +19,7 @@ public class Sound {
         mName = filename.replace(".3gp", "");
         String[] nameComponents = mName.split("_");
         mSoundType = nameComponents[0];
-        Log.i(TAG, "Sound: SoundType: " + mSoundType);
+        //Log.i(TAG, "Sound: SoundType: " + mSoundType);
     }
     public String getAssetPath() {
         return mAssetPath;

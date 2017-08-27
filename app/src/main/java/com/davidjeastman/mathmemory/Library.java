@@ -49,11 +49,15 @@ public class Library {
         values.put(EntryTable.Cols.TITLE, entry.getTitle());
         values.put(EntryTable.Cols.TYPE_ENTRY, entry.getTypeEntry());
         values.put(EntryTable.Cols.DATE, entry.getDate().getTime());
+        values.put(EntryTable.Cols.IMAGE_COUNT, entry.getImageCount());
         values.put(EntryTable.Cols.AUDIO_COUNT, entry.getAudioCount());
+
+        values.put(EntryTable.Cols.IMAGES, convertToJSON(entry.getImages()));
 
         values.put(EntryTable.Cols.DEFINITIONS, convertToJSON(entry.getDefinitionAudioFiles()));
         values.put(EntryTable.Cols.PROPERTIES, convertToJSON(entry.getPropertyAudioFiles()));
         values.put(EntryTable.Cols.THEOREMS, convertToJSON(entry.getTheoremAudioFiles()));
+        values.put(EntryTable.Cols.PROPOSITIONS, convertToJSON(entry.getPropositionAudioFiles()));
         values.put(EntryTable.Cols.FORMULAS, convertToJSON(entry.getFormulaAudioFiles()));
         values.put(EntryTable.Cols.METHODS, convertToJSON(entry.getMethodAudioFiles()));
         values.put(EntryTable.Cols.INTUITIONS, convertToJSON(entry.getIntuitionAudioFiles()));
@@ -135,12 +139,6 @@ public class Library {
         }
     }
 
-    public File getPhotoFile(Entry entry) {
-        File filesDir = mContext.getFilesDir();
-        return new File(filesDir,
-                entry.getPhotoFilename());
-    }
-
     public void updateEntry(Entry entry) {
         String uuidString = entry.getId().toString();
         ContentValues values = getContentValues(entry);
@@ -157,8 +155,16 @@ public class Library {
                 whereArgs,
                 null, // groupBy
                 null, // having
-                null // orderBy
+                "TITLE" // orderBy
         );
         return new EntryCursorWrapper(cursor);
+    }
+
+    public List<File> getPhotoFiles(Entry entry) {
+        List<File> files = new ArrayList<>();
+        File filesDir = mContext.getFilesDir();
+        for (int i = 0; i < entry.getImages().size(); i++)
+            files.add(new File(filesDir, entry.getPhotoFilename(i)));
+        return files;
     }
 }

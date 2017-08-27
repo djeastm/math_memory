@@ -33,11 +33,15 @@ public class EntryBaseHelper extends SQLiteOpenHelper {
                 EntryTable.Cols.TITLE + ", " +
                 EntryTable.Cols.TYPE_ENTRY + ", " +
                 EntryTable.Cols.DATE + ", " +
+                EntryTable.Cols.IMAGE_COUNT + ", " +
                 EntryTable.Cols.AUDIO_COUNT + ", " +
+
+                EntryTable.Cols.IMAGES + ", " +
 
                 EntryTable.Cols.DEFINITIONS + ", " +
                 EntryTable.Cols.PROPERTIES + ", " +
                 EntryTable.Cols.THEOREMS + ", " +
+                EntryTable.Cols.PROPOSITIONS + ", " +
                 EntryTable.Cols.FORMULAS + ", " +
                 EntryTable.Cols.METHODS + ", " +
                 EntryTable.Cols.INTUITIONS + ", " +

@@ -14,9 +14,9 @@ import android.support.v7.app.AlertDialog;
 public class ConfirmDialogFragment extends DialogFragment {
 
     public static final String EXTRA_CONFIRM_AUDIO_DELETE_TYPE =
-            "com.squeakytree.mathmemory.confirm_audio_delete_type";
+            "com.davidjeastman.mathmemory.confirm_audio_delete_type";
     public static final String EXTRA_CONFIRM_AUDIO_DELETE_PATH =
-            "com.squeakytree.mathmemory.confirm_audio_delete_path";
+            "com.davidjeastman.mathmemory.confirm_audio_delete_path";
 
     private static final String ARG_CONFIRM_AUDIO_DELETE_BOOLEAN = "confirm_audio_delete_boolean";
     private static final String ARG_CONFIRM_AUDIO_DELETE_SOUND_TYPE = "confirm_audio_delete_sound_type";

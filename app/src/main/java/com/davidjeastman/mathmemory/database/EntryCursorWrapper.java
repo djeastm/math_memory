@@ -29,11 +29,15 @@ public class EntryCursorWrapper extends CursorWrapper {
         String title = getString(getColumnIndex(EntryTable.Cols.TITLE));
         String typeEntry = getString(getColumnIndex(EntryTable.Cols.TYPE_ENTRY));
         long date = getLong(getColumnIndex(EntryTable.Cols.DATE));
+        int imageCount = getInt(getColumnIndex(EntryTable.Cols.IMAGE_COUNT));
         int audioCount = getInt(getColumnIndex(EntryTable.Cols.AUDIO_COUNT));
+
+        List<String> images = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.IMAGES)));
 
         List<String> definitions = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.DEFINITIONS)));
         List<String> properties = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.PROPERTIES)));
         List<String> theorems = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.THEOREMS)));
+        List<String> propositions = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.PROPOSITIONS)));
         List<String> formulas = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.FORMULAS)));
         List<String> methods = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.METHODS)));
         List<String> intuitions = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.INTUITIONS)));
@@ -47,11 +51,15 @@ public class EntryCursorWrapper extends CursorWrapper {
         entry.setTitle(title);
         entry.setTypeEntry(typeEntry);
         entry.setDate(new Date(date));
+        entry.setImageCount(imageCount);
         entry.setAudioCount(audioCount);
+
+        entry.setImages(images);
 
         entry.setDefinitionAudioFiles(definitions);
         entry.setPropertyAudioFiles(properties);
         entry.setTheoremAudioFiles(theorems);
+        entry.setPropositionAudioFiles(propositions);
         entry.setFormulaAudioFiles(formulas);
         entry.setMethodAudioFiles(methods);
         entry.setIntuitionAudioFiles(intuitions);

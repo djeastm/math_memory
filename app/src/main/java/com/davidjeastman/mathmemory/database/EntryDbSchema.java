@@ -13,11 +13,15 @@ public class EntryDbSchema {
             public static final String TITLE = "title";
             public static final String TYPE_ENTRY = "type_entry";
             public static final String DATE = "date";
+            public static final String IMAGE_COUNT = "image_count";
             public static final String AUDIO_COUNT = "audio_count";
+
+            public static final String IMAGES = "images";
 
             public static final String DEFINITIONS = "definitions";
             public static final String PROPERTIES = "properties";
             public static final String THEOREMS = "theorems";
+            public static final String PROPOSITIONS = "propositions";
             public static final String FORMULAS = "formulas";
             public static final String METHODS = "methods";
             public static final String INTUITIONS = "intuitions";

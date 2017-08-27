@@ -56,19 +56,16 @@ public class EntryFragment extends Fragment {
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static final int REQUEST_PHOTO = 2;
 
-    String mFileName;
+    String mSoundFileName;
     private Entry mEntry;
-    private File mPhotoFile;
-
-    // Image-related
-    private ImageButton mPhotoButton;
-    private ImageView mPhotoView;
-
-    // Audio-Related
+    private RecyclerView mImageRecyclerView;
+    private ImageAdapter mImageAdapter;
+    private List<File> mImageFiles = new ArrayList<>();
+    private Uri mUriToRevoke;
     private Button mRecordButton;
     private MediaRecorder mRecorder;
-    private RecyclerView mRecyclerView;
-    private SoundAdapter mAdapter;
+    private RecyclerView mSoundRecyclerView;
+    private SoundAdapter mSoundAdapter;
     private List<Sound> mSounds = new ArrayList<>();
     private MediaPlayer mPlayer;
 
@@ -104,7 +101,6 @@ public class EntryFragment extends Fragment {
         UUID entryId = (UUID) getArguments().getSerializable(ARG_ENTRY_ID);
 
         mEntry = Library.get(getActivity()).getEntry(entryId);
-        mPhotoFile = Library.get(getActivity()).getPhotoFile(mEntry);
 
         ActivityCompat.requestPermissions(this.getActivity(), permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
@@ -115,37 +111,12 @@ public class EntryFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_entry, container, false);
 
-        PackageManager packageManager = getActivity().getPackageManager();
-
-        mPhotoButton = (ImageButton) v.findViewById(R.id.entry_camera);
-
-        final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        boolean canTakePhoto = mPhotoFile != null && captureImage.resolveActivity(packageManager) != null;
-        mPhotoButton.setEnabled(canTakePhoto);
-        mPhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Uri uri = FileProvider.getUriForFile(getActivity(),
-                        "com.davidjeastman.mathmemory.fileprovider",
-                        mPhotoFile);
-                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                List<ResolveInfo> cameraActivities = getActivity()
-                        .getPackageManager().queryIntentActivities(captureImage,
-                                PackageManager.MATCH_DEFAULT_ONLY);
-                for (ResolveInfo activity : cameraActivities) {
-                    getActivity().grantUriPermission(activity.activityInfo.toString(),
-                            uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                }
-                startActivityForResult(captureImage, REQUEST_PHOTO);
-            }
-        });
-
-        final ViewSwitcher switcher = (ViewSwitcher) v.findViewById(R.id.entry_title_switcher);
+        final ViewSwitcher switcher = v.findViewById(R.id.entry_title_switcher);
 
         if (mEntry.getTitle() == null) {
             SetUpTitleEditText(switcher, null);
         } else {
-            TextView titleTextView = (TextView) switcher.findViewById(R.id.entry_title_text_view);
+            TextView titleTextView = switcher.findViewById(R.id.entry_title_text_view);
             titleTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -155,7 +126,20 @@ public class EntryFragment extends Fragment {
             titleTextView.setText(mEntry.getTitle());
         }
 
-        Spinner typeSpinner = (Spinner) v.findViewById(R.id.entry_type_spinner);
+        Button addImageButton = v.findViewById(R.id.fragment_image_add_button);
+        addImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                File filesDir = getContext().getFilesDir();
+                Uri uri = FileProvider.getUriForFile(getActivity(),
+                        "com.davidjeastman.mathmemory.fileprovider",
+                        new File(filesDir, mEntry.getPhotoFilename(mEntry.getImageCount())));
+                mEntry.addImage(uri);
+                updateImageUI();
+            }
+        });
+
+        Spinner typeSpinner = v.findViewById(R.id.entry_type_spinner);
         ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(v.getContext(), R.array.entry_type_array, android.R.layout.simple_spinner_item);
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(typeAdapter);
@@ -172,7 +156,7 @@ public class EntryFragment extends Fragment {
             }
         });
 
-        Spinner audioTypeSpinner = (Spinner) v.findViewById(R.id.audio_type_spinner);
+        Spinner audioTypeSpinner = v.findViewById(R.id.audio_type_spinner);
         ArrayAdapter<CharSequence> recordingAdapter = ArrayAdapter.createFromResource(v.getContext(), R.array.audio_type_array, android.R.layout.simple_spinner_item);
         recordingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         audioTypeSpinner.setAdapter(recordingAdapter);
@@ -190,7 +174,7 @@ public class EntryFragment extends Fragment {
             }
         });
 
-        mRecordButton = (Button) v.findViewById(R.id.entry_record_button);
+        mRecordButton = v.findViewById(R.id.entry_record_button);
         mRecordButton.setOnClickListener(new View.OnClickListener() {
             boolean mStartRecording = true;
 
@@ -214,39 +198,20 @@ public class EntryFragment extends Fragment {
             mRecordButton.setEnabled(false);
             Log.e(TAG, "Not writable; Can't record");
         }
+        mImageRecyclerView = v.findViewById(R.id.fragment_image_recycler_view);
+        mImageRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 
-        mRecyclerView = (RecyclerView) v
-                .findViewById(R.id.fragment_play_manager_recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mSoundRecyclerView = v.findViewById(R.id.fragment_play_manager_recycler_view);
+        mSoundRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        final boolean DO_DIALOG = true;
-        mPhotoView = v.findViewById(R.id.entry_photo);
-        mPhotoView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("CrimeFragment", "click on photo");
-                if (mPhotoFile==null || !mPhotoFile.exists()) return;   //no photo
-                FragmentManager fm = getFragmentManager();
-                EntryPhotoDialogFragment dialogFragment = EntryPhotoDialogFragment.newInstance(mPhotoFile.getPath());
-                if (DO_DIALOG) {
-                    dialogFragment.show(fm, mEntry.getPhotoFilename());
-                } else {
-                    //show in full screen
-                    android.support.v4.app.FragmentTransaction transaction = fm.beginTransaction();
-                    transaction.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                    transaction.add(android.R.id.content, dialogFragment).addToBackStack(null).commit();
-                }
-            }
-        });
-
-        updatePhotoView();
+        updateImageUI();
         updateSoundUI();
         return v;
     }
 
     private void SetUpTitleEditText(ViewSwitcher switcher, String startTitle) {
         switcher.showNext();
-        EditText titleTextView = (EditText) switcher.findViewById(R.id.entry_title_edit_text);
+        EditText titleTextView = switcher.findViewById(R.id.entry_title_edit_text);
         titleTextView.setText(startTitle);
         titleTextView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -285,10 +250,8 @@ public class EntryFragment extends Fragment {
             Toast.makeText(getActivity(), toastString, Toast.LENGTH_SHORT).show();
             updateSoundUI();
         } else if (requestCode == REQUEST_PHOTO) {
-            Uri uri = FileProvider.getUriForFile(getActivity(),
-                    "com.davidjeastman.mathmemory.fileprovider", mPhotoFile);
-            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            updatePhotoView();
+            getActivity().revokeUriPermission(mUriToRevoke, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            updateImageUI();
         }
     }
 
@@ -343,6 +306,20 @@ public class EntryFragment extends Fragment {
         return false;
     }
 
+    private void updateImageUI() {
+        mImageFiles = Library.get(getActivity()).getPhotoFiles(mEntry);
+
+        if (mImageAdapter == null) {
+            mImageAdapter = new ImageAdapter(mImageFiles);
+            mImageRecyclerView.setAdapter(mImageAdapter);
+        } else {
+            mImageRecyclerView.setAdapter(mImageAdapter);
+            mImageAdapter.setImages(mImageFiles);
+            mImageAdapter.notifyDataSetChanged();
+        }
+
+    }
+
     private void getSounds() {
         mSounds.clear();
 
@@ -357,13 +334,13 @@ public class EntryFragment extends Fragment {
     private void updateSoundUI() {
         getSounds();
 
-        if (mAdapter == null) {
-            mAdapter = new SoundAdapter(mSounds);
-            mRecyclerView.setAdapter(mAdapter);
+        if (mSoundAdapter == null) {
+            mSoundAdapter = new SoundAdapter(mSounds);
+            mSoundRecyclerView.setAdapter(mSoundAdapter);
         } else {
-            mRecyclerView.setAdapter(mAdapter);
-            mAdapter.setSounds(mSounds);
-            mAdapter.notifyDataSetChanged();
+            mSoundRecyclerView.setAdapter(mSoundAdapter);
+            mSoundAdapter.setSounds(mSounds);
+            mSoundAdapter.notifyDataSetChanged();
         }
 
     }
@@ -377,15 +354,15 @@ public class EntryFragment extends Fragment {
     }
 
     private void startRecording() {
-        //mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-        mFileName = this.getContext().getExternalCacheDir().getAbsolutePath();
-        //mFileName += "/" + Library.APP_DIRECTORY + "/" + mEntry.buildSoundFilePathName();
-        mFileName += "/" + mEntry.buildSoundFilePathName();
+        //mSoundFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
+        //mSoundFileName += "/" + Library.APP_DIRECTORY + "/" + mEntry.buildSoundFilePathName();
+        mSoundFileName = this.getContext().getExternalCacheDir().getAbsolutePath();
+        mSoundFileName += "/" + mEntry.buildSoundFilePathName();
 
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mRecorder.setOutputFile(mFileName);
+        mRecorder.setOutputFile(mSoundFileName);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
         try {
@@ -402,7 +379,7 @@ public class EntryFragment extends Fragment {
         mRecorder.release();
         mRecorder = null;
 
-        mEntry.addAudio(mFileName);
+        mEntry.addAudio(mSoundFileName);
 
         updateSoundUI();
     }
@@ -434,12 +411,102 @@ public class EntryFragment extends Fragment {
         }
     }
 
-    private void updatePhotoView() {
-        if (mPhotoFile == null || !mPhotoFile.exists()) {
-            mPhotoView.setImageDrawable(null);
-        } else {
-            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity());
-            mPhotoView.setImageBitmap(bitmap);
+    private class ImageHolder extends RecyclerView.ViewHolder {
+        PackageManager packageManager;
+        private File photoFile;
+        private ImageButton photoButton;
+        private ImageView photoView;
+
+        public ImageHolder(LayoutInflater inflater, ViewGroup container) {
+            super(inflater.inflate(R.layout.photo_frame, container, false));
+            packageManager = getActivity().getPackageManager();
+            photoButton = itemView.findViewById(R.id.entry_camera);
+            photoView = itemView.findViewById(R.id.entry_photo);
+        }
+
+        public void bindImage(File imageFile) {
+            photoFile = imageFile;
+            final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            boolean canTakePhoto = photoFile != null && captureImage.resolveActivity(packageManager) != null;
+            photoButton.setEnabled(canTakePhoto);
+            photoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri uri = FileProvider.getUriForFile(getActivity(),
+                            "com.davidjeastman.mathmemory.fileprovider",
+                            photoFile);
+                    mUriToRevoke = uri;
+                    captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                    List<ResolveInfo> cameraActivities = getActivity()
+                            .getPackageManager().queryIntentActivities(captureImage,
+                                    PackageManager.MATCH_DEFAULT_ONLY);
+                    for (ResolveInfo activity : cameraActivities) {
+                        getActivity().grantUriPermission(activity.activityInfo.toString(),
+                                uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    }
+                    startActivityForResult(captureImage, REQUEST_PHOTO);
+                }
+            });
+
+
+            final boolean DO_DIALOG = true;
+            photoView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (photoFile == null || !photoFile.exists()) return;   //no photo
+                    int imageId = mImageRecyclerView.getChildLayoutPosition(v);
+                    FragmentManager fm = getFragmentManager();
+                    EntryPhotoDialogFragment dialogFragment = EntryPhotoDialogFragment.newInstance(photoFile.getPath());
+                    if (DO_DIALOG) {
+                        dialogFragment.show(fm, mEntry.getPhotoFilename(imageId));
+                    } else {
+                        //show in full screen
+                        android.support.v4.app.FragmentTransaction transaction = fm.beginTransaction();
+                        transaction.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        transaction.add(android.R.id.content, dialogFragment).addToBackStack(null).commit();
+                    }
+                }
+            });
+
+            updatePhotoView();
+        }
+
+        private void updatePhotoView() {
+            if (photoFile == null || !photoFile.exists()) {
+                photoView.setImageDrawable(null);
+            } else {
+                Bitmap bitmap = PictureUtils.getScaledBitmap(photoFile.getPath(), getActivity());
+                photoView.setImageBitmap(bitmap);
+            }
+        }
+    }
+
+    private class ImageAdapter extends RecyclerView.Adapter<ImageHolder> {
+        private List<File> mImages;
+
+        public ImageAdapter(List<File> images) {
+            mImages = images;
+        }
+
+        @Override
+        public ImageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            return new ImageHolder(inflater, parent);
+        }
+
+        @Override
+        public void onBindViewHolder(ImageHolder imageHolder, int position) {
+            File image = mImages.get(position);
+            imageHolder.bindImage(image);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mImages.size();
+        }
+
+        public void setImages(List<File> images) {
+            mImages = images;
         }
     }
 
@@ -451,8 +518,8 @@ public class EntryFragment extends Fragment {
 
         public SoundHolder(LayoutInflater inflater, ViewGroup container) {
             super(inflater.inflate(R.layout.list_item_sound, container, false));
-            mDeleteButton = (Button) itemView.findViewById(R.id.list_item_sound_delete_button);
-            mPlayButton = (Button) itemView.findViewById(R.id.list_item_sound_play_button);
+            mDeleteButton = itemView.findViewById(R.id.list_item_sound_delete_button);
+            mPlayButton = itemView.findViewById(R.id.list_item_sound_play_button);
         }
 
         public void bindSound(Sound sound) {

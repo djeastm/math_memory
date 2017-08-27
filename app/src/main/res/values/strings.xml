@@ -2,10 +2,12 @@
     <string name="app_name">Math Memory</string>
     <string name="entry_title_label">Title</string>
     <string name="entry_title_hint">Enter a title here</string>
+    <string name="entry_image_add">Add</string>
     <string name="entry_type_label">Type</string>
     <string-array name="entry_type_array">
         <item>Definition</item>
         <item>Theorem</item>
+        <item>Proposition</item>
         <item>Formula</item>
         <item>Method</item>
     </string-array>
@@ -16,6 +18,7 @@
         <item>Definition</item>
         <item>Property</item>
         <item>Theorem</item>
+        <item>Proposition</item>
         <item>Formula</item>
         <item>Method</item>
         <item>Intuition</item>

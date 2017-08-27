@@ -1,5 +1,6 @@
 package com.davidjeastman.mathmemory;
 
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.File;
@@ -16,12 +17,14 @@ public class Entry {
 
     public static final String ENTRY_TYPE_DEFINITIONS = "Definition";
     public static final String ENTRY_TYPE_THEOREMS = "Theorem";
+    public static final String ENTRY_TYPE_PROPOSITIONS = "Proposition";
     public static final String ENTRY_TYPE_FORMULAS = "Formula";
     public static final String ENTRY_TYPE_METHODS = "Method";
 
     public static final String AUDIO_TYPE_DEFINITIONS = "Definition";
     public static final String AUDIO_TYPE_PROPERTIES = "Property";
     public static final String AUDIO_TYPE_THEOREMS = "Theorem";
+    public static final String AUDIO_TYPE_PROPOSITIONS = "Proposition";
     public static final String AUDIO_TYPE_FORMULAS = "Formula";
     public static final String AUDIO_TYPE_METHODS = "Method";
     public static final String AUDIO_TYPE_INTUITIONS = "Intuition";
@@ -36,11 +39,15 @@ public class Entry {
     private String mTitle;
     private String mTypeEntry;
     private Date mDate;
+    private int mImageCount;
     private int mAudioCount;
+
+    private List<String> mImages;
 
     private List<String> mDefinitionAudioFiles;
     private List<String> mPropertyAudioFiles;
     private List<String> mTheoremAudioFiles;
+    private List<String> mPropositionAudioFiles;
     private List<String> mFormulaAudioFiles;
     private List<String> mMethodAudioFiles;
     private List<String> mIntuitionAudioFiles;
@@ -59,9 +66,20 @@ public class Entry {
 
     public Entry(UUID id) {
         safeId = id.toString().substring(id.toString().length() - 5);
+        mImageCount = 1;
         mAudioCount = 1;
         mId = id;
         mDate = new Date();
+    }
+
+    public void addImage(Uri uri) {
+        getImages().add(uri.toString());
+        mImageCount++;
+    }
+
+    public void deleteImage(Uri uri) {
+        getImages().remove(uri.toString());
+        mImageCount--;
     }
 
     public void addAudio(String fileName) {
@@ -75,6 +93,9 @@ public class Entry {
                 break;
             case AUDIO_TYPE_THEOREMS:
                 getTheoremAudioFiles().add(fileName);
+                break;
+            case AUDIO_TYPE_PROPOSITIONS:
+                getPropositionAudioFiles().add(fileName);
                 break;
             case AUDIO_TYPE_FORMULAS:
                 getFormulaAudioFiles().add(fileName);
@@ -121,6 +142,9 @@ public class Entry {
             case AUDIO_TYPE_THEOREMS:
                 getTheoremAudioFiles().remove(fileName);
                 break;
+            case AUDIO_TYPE_PROPOSITIONS:
+                getPropositionAudioFiles().remove(fileName);
+                break;
             case AUDIO_TYPE_FORMULAS:
                 getFormulaAudioFiles().remove(fileName);
                 break;
@@ -164,17 +188,10 @@ public class Entry {
         return audioType + "_" + entryTitle + "_" + entryID + "_" + mAudioCount + ".3gp";
     }
 
-    public String getPhotoFilename() {
+    public String getPhotoFilename(int photoId) {
         String entryID = safeId;
-        String entryTitle = getTitle();
-        //String entryType = getTypeEntry();
 
-        // Check for invalid character in entryTitle
-//        if (entryTitle.contains("/")) {
-//            entryTitle = entryTitle.replace('/', '-');
-//        }
-
-        return "IMG_" + entryID + ".3gp";
+        return "IMG" + "_" + entryID + "_" + photoId + ".jpg";
     }
 
     public UUID getId() {
@@ -205,10 +222,26 @@ public class Entry {
         mDate = date;
     }
 
+
+    public int getImageCount() {
+        return mImageCount;
+    }
+
+    public void setImageCount(int imageCount) {
+        mImageCount = imageCount;
+    }
+
+    public List<String> getImages() {
+        return mImages;
+    }
+
+    public void setImages(List<String> images) {
+        mImages = images;
+    }
+
     public int getAudioCount() {
         return mAudioCount;
     }
-
 
     public void setAudioCount(int audioCount) {
         mAudioCount = audioCount;
@@ -219,6 +252,7 @@ public class Entry {
         allSounds.addAll(getDefinitionAudioFiles());
         allSounds.addAll(getPropertyAudioFiles());
         allSounds.addAll(getTheoremAudioFiles());
+        allSounds.addAll(getPropositionAudioFiles());
         allSounds.addAll(getFormulaAudioFiles());
         allSounds.addAll(getMethodAudioFiles());
         allSounds.addAll(getIntuitionAudioFiles());
@@ -245,6 +279,14 @@ public class Entry {
 
     public void setPropertyAudioFiles(List<String> propertyAudioFiles) {
         mPropertyAudioFiles = propertyAudioFiles;
+    }
+
+    public List<String> getPropositionAudioFiles() {
+        return mPropositionAudioFiles;
+    }
+
+    public void setPropositionAudioFiles(List<String> propositionAudioFiles) {
+        mPropositionAudioFiles = propositionAudioFiles;
     }
 
     public List<String> getTheoremAudioFiles() {

@@ -11,23 +11,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp">
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:id="@+id/entry_photo"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:scaleType="fitXY"
-                android:cropToPadding="true"
-                android:background="@android:color/darker_gray"/>
-            <ImageButton
-                android:id="@+id/entry_camera"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_menu_camera"/>
-        </LinearLayout>
 
         <ViewSwitcher
             android:id="@+id/entry_title_switcher"
@@ -36,6 +19,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:paddingTop="8dp">
+
             <TextView
                 android:id="@+id/entry_title_text_view"
                 android:layout_height="fill_parent"
@@ -53,6 +37,25 @@
         </ViewSwitcher>
     </LinearLayout>
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/fragment_image_add_button"
+            android:text="@string/entry_image_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/fragment_image_recycler_view"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+        </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
+
+
 
     <TextView
         android:layout_width="match_parent"
@@ -60,6 +63,7 @@
         android:text="@string/entry_type_label"
         style="?android:listSeparatorTextViewStyle"
         />
+
     <Spinner
         android:id="@+id/entry_type_spinner"
         android:layout_width="match_parent"
@@ -80,14 +84,15 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"/>
 
-    <Button android:id="@+id/entry_record_button"
-            android:layout_width="match_parent"
-            android:layout_height="75dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:textColor="@color/white"
-            android:background="@color/green"
-            android:text="@string/entry_start_record_button_label"
+    <Button
+        android:id="@+id/entry_record_button"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:textColor="@color/white"
+        android:background="@color/green"
+        android:text="@string/entry_start_record_button_label"
         />
 
     <android.support.v7.widget.RecyclerView
