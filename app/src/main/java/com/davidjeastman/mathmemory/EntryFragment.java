@@ -2,14 +2,12 @@ package com.davidjeastman.mathmemory;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.media.audiofx.EnvironmentalReverb;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -56,7 +54,8 @@ public class EntryFragment extends Fragment {
 
     private static final int REQUEST_CONFIRM_AUDIO_DELETE = 0;
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
-    private static final int REQUEST_PHOTO = 2;
+    private static final int REQUEST_TAKE_PHOTO = 2;
+    private static final int REQUEST_VIEW_PHOTO = 3;
 
     String mSoundFileName;
     private Entry mEntry;
@@ -252,9 +251,11 @@ public class EntryFragment extends Fragment {
             mEntry.deleteAudio(soundType, assetPath);
             Toast.makeText(getActivity(), toastString, Toast.LENGTH_SHORT).show();
             updateSoundUI();
-        } else if (requestCode == REQUEST_PHOTO) {
+        } else if (requestCode == REQUEST_TAKE_PHOTO) {
             getActivity().revokeUriPermission(mUriToRevoke, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             updateImageUI();
+        } else if (requestCode == REQUEST_VIEW_PHOTO) {
+            //getActivity().revokeUriPermission(mUriToRevoke, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
     }
 
@@ -431,6 +432,7 @@ public class EntryFragment extends Fragment {
             photoFile = imageFile;
             final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             boolean canTakePhoto = photoFile != null && captureImage.resolveActivity(packageManager) != null;
+
             photoButton.setEnabled(canTakePhoto);
             photoButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -447,7 +449,7 @@ public class EntryFragment extends Fragment {
                         getActivity().grantUriPermission(activity.activityInfo.toString(),
                                 uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     }
-                    startActivityForResult(captureImage, REQUEST_PHOTO);
+                    startActivityForResult(captureImage, REQUEST_TAKE_PHOTO);
                 }
             });
 
@@ -463,10 +465,20 @@ public class EntryFragment extends Fragment {
                     if (DO_DIALOG) {
                         dialogFragment.show(fm, mEntry.getPhotoFilename(imageId));
                     } else {
-                        //show in full screen
+                        // Show with default viewer
+//                        Uri uri = FileProvider.getUriForFile(getActivity(),
+//                                "com.davidjeastman.mathmemory.fileprovider",
+//                                photoFile);
+//                        mUriToRevoke = uri;
+//                        Log.i(TAG, "Uri: "+uri.toString());
+//                        Intent viewImage = new Intent(Intent.ACTION_VIEW, uri);
+//                        viewImage.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                        startActivityForResult(viewImage, REQUEST_VIEW_PHOTO);
+
+                        //show in full screen stretched viewpager
                         Intent intent = ImagePagerActivity.newIntent(getActivity(), mEntry.getId(), imageId);
                         startActivity(intent);
-//
+//                      //show just one image stretched
 //                        android.support.v4.app.FragmentTransaction transaction = fm.beginTransaction();
 //                        transaction.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 //                        transaction.add(android.R.id.content, dialogFragment).addToBackStack(null).commit();

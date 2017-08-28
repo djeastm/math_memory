@@ -4,6 +4,6 @@
     android:id="@+id/entry_photo_dialog_imageview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scaleType="fitXY">
+    android:scaleType="fitCenter">
 
 </android.support.v7.widget.AppCompatImageView>

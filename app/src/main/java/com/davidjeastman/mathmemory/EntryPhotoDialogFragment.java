@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
 
+import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;
+
 import java.util.UUID;
 
 import static com.davidjeastman.mathmemory.PictureUtils.getScaledBitmap;
@@ -52,6 +54,7 @@ public class EntryPhotoDialogFragment extends DialogFragment {
         ImageView imageView = v.findViewById(R.id.entry_photo_dialog_imageview);
         imageView.setImageBitmap(bitmap);
 
+        imageView.setOnTouchListener(new ImageMatrixTouchHandler(v.getContext()));
         return v;
     }
 }

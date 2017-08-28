@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import java.io.File;
 import java.util.List;
@@ -36,12 +37,12 @@ public class ImagePagerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_entry_pager);
+        setContentView(R.layout.activity_image_pager);
 
         UUID entryId = (UUID) getIntent().getSerializableExtra(EXTRA_ENTRY_ID);
         int imageId = (int) getIntent().getSerializableExtra(EXTRA_IMAGE_ID);
 
-        mViewPager = (ViewPager) findViewById(R.id.activity_entry_pager_view_pager);
+        mViewPager = (ViewPager) findViewById(R.id.activity_image_pager_view_pager);
         mImages = Library.get(this).getPhotoFiles(Library.get(this).getEntry(entryId));
         FragmentManager fragmentManager = getSupportFragmentManager();
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
