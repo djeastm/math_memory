@@ -32,7 +32,8 @@
     <string name="entry_stop_play_button_label">Stop</string>
     <string name="new_entry">New Entry</string>
     <string name="delete_entry">Delete Entry</string>
-    <string name="toast_audio_type_deleted">Deleted</string>
+    <string name="toast_element_deleted">Deleted</string>
+    <string name="toast_image_deleted">Image Deleted</string>
     <plurals name="toast_entries_deleted_plural">
         <item quantity="one">%1$s entry deleted</item>
         <item quantity="other">%1$s entries deleted</item>

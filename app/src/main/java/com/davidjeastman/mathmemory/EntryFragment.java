@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Dave on 12/19/2015.
@@ -53,6 +55,7 @@ public class EntryFragment extends Fragment {
     private static final String DIALOG_CONFIRM = "DialogConfirm";
 
     private static final int REQUEST_CONFIRM_AUDIO_DELETE = 0;
+    private static final int REQUEST_CONFIRM_IMAGE_DELETE = 1;
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static final int REQUEST_TAKE_PHOTO = 2;
     private static final int REQUEST_VIEW_PHOTO = 3;
@@ -133,11 +136,14 @@ public class EntryFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 File filesDir = getContext().getFilesDir();
+                int key = mEntry.getImageCounter();
+                String fileName = mEntry.buildPhotoFilename(key);
                 Uri uri = FileProvider.getUriForFile(getActivity(),
                         "com.davidjeastman.mathmemory.fileprovider",
-                        new File(filesDir, mEntry.getPhotoFilename(mEntry.getImageCount())));
-                mEntry.addImage(uri);
+                        new File(filesDir, fileName));
+                mEntry.addImage(key, uri);
                 updateImageUI();
+                Library.get(getActivity()).updateEntry(mEntry);
             }
         });
 
@@ -242,20 +248,42 @@ public class EntryFragment extends Fragment {
         }
         if (requestCode == REQUEST_CONFIRM_AUDIO_DELETE) {
             String soundType = (String) data
-                    .getSerializableExtra(ConfirmDialogFragment.EXTRA_CONFIRM_AUDIO_DELETE_TYPE);
+                    .getSerializableExtra(ConfirmAudioDeleteDialogFragment.EXTRA_CONFIRM_AUDIO_DELETE_TYPE);
 
             String assetPath = (String) data
-                    .getSerializableExtra(ConfirmDialogFragment.EXTRA_CONFIRM_AUDIO_DELETE_PATH);
+                    .getSerializableExtra(ConfirmAudioDeleteDialogFragment.EXTRA_CONFIRM_AUDIO_DELETE_PATH);
 
-            String toastString = soundType + " " + getResources().getString(R.string.toast_audio_type_deleted);
+            String toastString = soundType + " " + getResources().getString(R.string.toast_element_deleted);
             mEntry.deleteAudio(soundType, assetPath);
             Toast.makeText(getActivity(), toastString, Toast.LENGTH_SHORT).show();
             updateSoundUI();
+            Library.get(getActivity()).updateEntry(mEntry);
+        } else if (requestCode == REQUEST_CONFIRM_IMAGE_DELETE) {
+            String fileName = (String) data
+                    .getSerializableExtra(ConfirmImageDeleteDialogFragment.EXTRA_CONFIRM_IMAGE_DELETE_PATH);
+
+            String toastString = getResources().getString(R.string.toast_image_deleted);
+
+            Log.i(TAG,fileName);
+            Pattern p = Pattern.compile(".*_(\\d+)(\\.jpg)$");
+            Matcher m = p.matcher(fileName);
+            int key = Integer.parseInt(m.find()? m.group(1) : "0");
+            Log.i(TAG,""+key);
+            File filesDir = getContext().getFilesDir();
+            Uri uri = FileProvider.getUriForFile(getActivity(),
+                    "com.davidjeastman.mathmemory.fileprovider",
+                    new File(filesDir, fileName));
+            getContext().getContentResolver().delete(uri, null, null);
+            mEntry.deleteImage(key);
+            Toast.makeText(getActivity(), toastString, Toast.LENGTH_SHORT).show();
+            Library.get(getActivity()).updateEntry(mEntry);
+            mImageFiles = Library.get(getActivity()).getPhotoFiles(mEntry);
+            updateImageUI();
         } else if (requestCode == REQUEST_TAKE_PHOTO) {
             getActivity().revokeUriPermission(mUriToRevoke, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             updateImageUI();
         } else if (requestCode == REQUEST_VIEW_PHOTO) {
-            //getActivity().revokeUriPermission(mUriToRevoke, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            getActivity().revokeUriPermission(mUriToRevoke, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
     }
 
@@ -321,7 +349,6 @@ public class EntryFragment extends Fragment {
             mImageAdapter.setImages(mImageFiles);
             mImageAdapter.notifyDataSetChanged();
         }
-
     }
 
     private void getSounds() {
@@ -419,16 +446,19 @@ public class EntryFragment extends Fragment {
         PackageManager packageManager;
         private File photoFile;
         private ImageButton photoButton;
+        private ImageButton deleteButton;
         private ImageView photoView;
 
         public ImageHolder(LayoutInflater inflater, ViewGroup container) {
             super(inflater.inflate(R.layout.photo_frame, container, false));
             packageManager = getActivity().getPackageManager();
-            photoButton = itemView.findViewById(R.id.entry_camera);
+            photoButton = itemView.findViewById(R.id.entry_take_picture_button);
+            deleteButton = itemView.findViewById(R.id.entry_image_delete_button);
             photoView = itemView.findViewById(R.id.entry_photo);
         }
 
         public void bindImage(File imageFile) {
+            // problem with bindImage again
             photoFile = imageFile;
             final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             boolean canTakePhoto = photoFile != null && captureImage.resolveActivity(packageManager) != null;
@@ -459,11 +489,13 @@ public class EntryFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     if (photoFile == null || !photoFile.exists()) return;   //no photo
-                    int imageId = mImageRecyclerView.getChildLayoutPosition(itemView);
+                    int imageId = mEntry.getImages()
+                            .get(mImageRecyclerView.getChildLayoutPosition(itemView))
+                            .getKey();
                     FragmentManager fm = getFragmentManager();
                     EntryPhotoDialogFragment dialogFragment = EntryPhotoDialogFragment.newInstance(photoFile.getPath());
                     if (DO_DIALOG) {
-                        dialogFragment.show(fm, mEntry.getPhotoFilename(imageId));
+                        dialogFragment.show(fm, mEntry.buildPhotoFilename(imageId));
                     } else {
                         // Show with default viewer
 //                        Uri uri = FileProvider.getUriForFile(getActivity(),
@@ -483,6 +515,17 @@ public class EntryFragment extends Fragment {
 //                        transaction.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 //                        transaction.add(android.R.id.content, dialogFragment).addToBackStack(null).commit();
                     }
+                }
+            });
+
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    FragmentManager manager = getFragmentManager();
+                    ConfirmImageDeleteDialogFragment dialog =
+                            ConfirmImageDeleteDialogFragment.newInstance(photoFile);
+                    dialog.setTargetFragment(EntryFragment.this, REQUEST_CONFIRM_IMAGE_DELETE);
+                    dialog.show(manager, DIALOG_CONFIRM);
                 }
             });
 
@@ -560,7 +603,7 @@ public class EntryFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     FragmentManager manager = getFragmentManager();
-                    ConfirmDialogFragment dialog = ConfirmDialogFragment.newInstance(thisSound);
+                    ConfirmAudioDeleteDialogFragment dialog = ConfirmAudioDeleteDialogFragment.newInstance(thisSound);
                     dialog.setTargetFragment(EntryFragment.this, REQUEST_CONFIRM_AUDIO_DELETE);
                     dialog.show(manager, DIALOG_CONFIRM);
                 }

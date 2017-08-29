@@ -50,10 +50,17 @@ public class Library {
         values.put(EntryTable.Cols.TITLE, entry.getTitle());
         values.put(EntryTable.Cols.TYPE_ENTRY, entry.getTypeEntry());
         values.put(EntryTable.Cols.DATE, entry.getDate().getTime());
-        values.put(EntryTable.Cols.IMAGE_COUNT, entry.getImageCount());
+        values.put(EntryTable.Cols.IMAGE_COUNT, entry.getImageCounter());
         values.put(EntryTable.Cols.AUDIO_COUNT, entry.getAudioCount());
 
-        values.put(EntryTable.Cols.IMAGES, convertToJSON(entry.getImages()));
+        List<String> imagesRaw = new ArrayList<>();
+        if (entry.getImages() != null) {
+            for (ImageMap i : entry.getImages()) {
+                String str = i.getKey() + ":::" + i.getPath();
+                imagesRaw.add(str);
+            }
+        }
+        values.put(EntryTable.Cols.IMAGES, convertToJSON(imagesRaw));
 
         values.put(EntryTable.Cols.DEFINITIONS, convertToJSON(entry.getDefinitionAudioFiles()));
         values.put(EntryTable.Cols.PROPERTIES, convertToJSON(entry.getPropertyAudioFiles()));
@@ -163,12 +170,10 @@ public class Library {
 
     public List<File> getPhotoFiles(Entry entry) {
         List<File> files = new ArrayList<>();
-        File filesDirExt = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File filesDirInt = mContext.getFilesDir();
-        for (int i = 0; i < entry.getImages().size(); i++) {
-            File f = new File(filesDirExt, entry.getPhotoFilename(i));
-            if (f.exists()) files.add(new File(filesDirExt, entry.getPhotoFilename(i)));
-            else files.add(new File(filesDirInt, entry.getPhotoFilename(i)));
+        File filesDir = mContext.getFilesDir();
+        for (ImageMap i : entry.getImages()) {
+            File f = new File(filesDir, entry.buildPhotoFilename(i.getKey()));
+            files.add(f);
         }
         return files;
     }

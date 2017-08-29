@@ -1,6 +1,7 @@
 package com.davidjeastman.mathmemory;
 
 import android.net.Uri;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import java.io.File;
@@ -8,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import static android.R.attr.path;
 
 /**
  * Created by Dave on 12/19/2015.
@@ -42,7 +45,7 @@ public class Entry {
     private int mImageCount;
     private int mAudioCount;
 
-    private List<String> mImages;
+    private List<ImageMap> mImages;
 
     private List<String> mDefinitionAudioFiles;
     private List<String> mPropertyAudioFiles;
@@ -66,24 +69,32 @@ public class Entry {
 
     public Entry(UUID id) {
         safeId = id.toString().substring(id.toString().length() - 5);
-        mImageCount = 1;
+        mImageCount = 0; // this is a strictly increasing counter to ensure unique filenames
         mAudioCount = 1;
         mId = id;
         mDate = new Date();
     }
 
-    public void addImage(Uri uri) {
-        getImages().add(uri.toString());
+    public void addImage(int key, Uri path) {
+        getImages().add(new ImageMap(key,path.toString()));
         mImageCount++;
+        Log.i(TAG, "Add: " + key + " " + path.toString());
+        for (ImageMap i : getImages()) Log.i(TAG, i.getKey() + " : " + i.getPath());
     }
 
-    public void deleteImage(Uri uri) {
-        getImages().remove(uri.toString());
-        mImageCount--;
+    public void deleteImage(int key) {
+        for (ImageMap i : getImages()) {
+            Log.i(TAG, i.getKey() + " : " + key);
+            if (i.getKey()==key) {
+                getImages().remove(i);
+                Log.i(TAG, "Deleted: " + key + " " + i.getPath());
+                break;
+            }
+        }
+        for (ImageMap i : getImages()) Log.i(TAG, i.getKey() + " : " + i.getPath());
     }
 
     public void addAudio(String fileName) {
-        //Log.i(TAG, "addAudio: "+ mTypeAudio);
         switch (mTypeAudio) {
             case AUDIO_TYPE_DEFINITIONS:
                 getDefinitionAudioFiles().add(fileName);
@@ -129,7 +140,7 @@ public class Entry {
     }
 
     public void deleteAudio(String typeAudio, String fileName) {
-        File fileToDelete = new File (fileName);
+        File fileToDelete = new File(fileName);
         boolean deleted = fileToDelete.delete();
         if (!deleted) Log.i(TAG, "deleteAudio: didn't delete");
         switch (typeAudio) {
@@ -188,10 +199,10 @@ public class Entry {
         return audioType + "_" + entryTitle + "_" + entryID + "_" + mAudioCount + ".3gp";
     }
 
-    public String getPhotoFilename(int photoId) {
+    public String buildPhotoFilename(int imageId) {
         String entryID = safeId;
 
-        return "IMG" + "_" + entryID + "_" + photoId + ".jpg";
+        return "img" + "_" + entryID + "_" + imageId + ".jpg";
     }
 
     public UUID getId() {
@@ -223,7 +234,7 @@ public class Entry {
     }
 
 
-    public int getImageCount() {
+    public int getImageCounter() {
         return mImageCount;
     }
 
@@ -231,11 +242,11 @@ public class Entry {
         mImageCount = imageCount;
     }
 
-    public List<String> getImages() {
+    public List<ImageMap> getImages() {
         return mImages;
     }
 
-    public void setImages(List<String> images) {
+    public void setImages(List<ImageMap> images) {
         mImages = images;
     }
 

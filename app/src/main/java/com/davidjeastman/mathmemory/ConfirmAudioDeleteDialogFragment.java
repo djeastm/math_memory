@@ -11,7 +11,7 @@ import android.support.v7.app.AlertDialog;
 /**
  * Created by Dave on 1/10/2016.
  */
-public class ConfirmDialogFragment extends DialogFragment {
+public class ConfirmAudioDeleteDialogFragment extends DialogFragment {
 
     public static final String EXTRA_CONFIRM_AUDIO_DELETE_TYPE =
             "com.davidjeastman.mathmemory.confirm_audio_delete_type";
@@ -22,13 +22,13 @@ public class ConfirmDialogFragment extends DialogFragment {
     private static final String ARG_CONFIRM_AUDIO_DELETE_SOUND_TYPE = "confirm_audio_delete_sound_type";
     private static final String ARG_CONFIRM_AUDIO_DELETE_SOUND_PATH = "confirm_audio_delete_sound_path";
 
-    public static ConfirmDialogFragment newInstance(Sound sound) {
+    public static ConfirmAudioDeleteDialogFragment newInstance(Sound sound) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_CONFIRM_AUDIO_DELETE_BOOLEAN, false);
         args.putSerializable(ARG_CONFIRM_AUDIO_DELETE_SOUND_TYPE, sound.getSoundType());
         args.putSerializable(ARG_CONFIRM_AUDIO_DELETE_SOUND_PATH, sound.getAssetPath());
 
-        ConfirmDialogFragment fragment = new ConfirmDialogFragment();
+        ConfirmAudioDeleteDialogFragment fragment = new ConfirmAudioDeleteDialogFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,7 +50,7 @@ public class ConfirmDialogFragment extends DialogFragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ConfirmDialogFragment.this.getDialog().cancel();
+                        ConfirmAudioDeleteDialogFragment.this.getDialog().cancel();
                     }
                 })
                 .create();

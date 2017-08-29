@@ -12,9 +12,15 @@
             android:cropToPadding="true"
             android:background="@android:color/darker_gray"/>
         <ImageButton
-            android:id="@+id/entry_camera"
+            android:id="@+id/entry_take_picture_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_menu_camera"/>
+
+        <ImageButton
+            android:id="@+id/entry_image_delete_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_delete"/>
 
 </LinearLayout>

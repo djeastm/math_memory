@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.davidjeastman.mathmemory.Entry;
+import com.davidjeastman.mathmemory.ImageMap;
 import com.davidjeastman.mathmemory.database.EntryDbSchema.EntryTable;
 
 /**
@@ -32,8 +33,14 @@ public class EntryCursorWrapper extends CursorWrapper {
         int imageCount = getInt(getColumnIndex(EntryTable.Cols.IMAGE_COUNT));
         int audioCount = getInt(getColumnIndex(EntryTable.Cols.AUDIO_COUNT));
 
-        List<String> images = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.IMAGES)));
-
+        List<String> imagesRaw = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.IMAGES)));
+        List<ImageMap> images = new ArrayList<>();
+        for (String s : imagesRaw) {
+            String str[] = s.split(":::");
+            int key = Integer.parseInt(str[0]);
+            String path = str[1];
+            images.add(new ImageMap(key,path));
+        }
         List<String> definitions = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.DEFINITIONS)));
         List<String> properties = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.PROPERTIES)));
         List<String> theorems = convertFromSQLString(getString(getColumnIndex(EntryTable.Cols.THEOREMS)));
